@@ -1,0 +1,42 @@
+﻿using System.Linq;
+using System.Reflection;
+using MelonLoader;
+using ABI_RC.Core.InteractionSystem;
+using static ThirdPerson.CameraLogic;
+
+namespace ThirdPerson;
+
+internal static class Patches
+{
+    internal static void Apply(HarmonyLib.Harmony harmony)
+    {
+        harmony.Patch(
+            typeof(ViewManager).GetMethods().FirstOrDefault(x => x.Name == nameof(ViewManager.UiStateToggle) && x.GetParameters().Length > 0),
+            typeof(Patches).GetMethod(nameof(ToggleMainMenu), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
+        );
+        harmony.Patch(
+            typeof(CVR_MenuManager).GetMethod(nameof(CVR_MenuManager.ToggleQuickMenu)),
+            typeof(Patches).GetMethod(nameof(ToggleQuickMenu), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
+        );
+    }
+    
+    private const BindingFlags Flags = BindingFlags.NonPublic | BindingFlags.Instance;
+    private static readonly FieldInfo MainMenuOpen =
+        typeof(ViewManager).GetField("_gameMenuOpen", Flags);
+    private static readonly FieldInfo QuickMenuOpen =
+        typeof(CVR_MenuManager).GetField("_quickMenuOpen", Flags);
+    private static bool IsMmOpen => (bool)MainMenuOpen.GetValue(ViewManager.Instance);
+    private static bool IsQmOpen => (bool)QuickMenuOpen.GetValue(CVR_MenuManager.Instance);
+    private static void ToggleMainMenu(bool __0) => ToggleMenus(__0, true);
+    private static void ToggleQuickMenu(bool __0) => ToggleMenus(__0, false);
+    private static void ToggleMenus(bool isOpen, bool isMain)
+    {
+        if ((IsMmOpen && !isMain) || (IsQmOpen && isMain)) return;
+        State = State switch
+        {
+            false when !isOpen && PreviousState => true,
+            true when isOpen => false,
+            _ => State
+        };
+    }
+}
