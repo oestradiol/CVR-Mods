@@ -4,6 +4,14 @@ Join the [ChilloutVR Modding Group (CVRMG)](https://discord.gg/R6Cr5zDRfB) for o
 ## Special Thanks
 Honestly, a big thank you to the entire CVR staff for being so supportive and nice. I love you guys <3.
 
+## DiscordMute
+**This mod is a rewritten and adapted version of [Rafacasari](https://github.com/Rafacasari)'s code. It helped a lot.** </br>
+**Here if you wanna check it: [DiscordMute](https://github.com/Rafacasari/DiscordMute)**
+
+**Planned features (Implementation still ongoing):**
+* Configurable mute key bind;
+* UI button to mute/unmute;
+
 ## CVRConsoleViewer
 **This mod has been made together with [PennyBunny](https://github.com/PennyBunny), and so we decided to keep it on her repository.** </br>
 **For now, go check it: [CVRConsoleViewer](https://github.com/PennyBunny/CVRMods/tree/main/CVRConsoleViewer)** 

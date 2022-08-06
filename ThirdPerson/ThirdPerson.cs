@@ -21,12 +21,14 @@ public static class BuildInfo
 
 public class ThirdPerson : MelonMod
 {
-    internal static MelonLogger.Instance MelonLogger;
+    internal static MelonLogger.Instance Logger;
     
     public override void OnApplicationStart() 
     {
-        MelonLogger = LoggerInstance; 
+        Logger = LoggerInstance;
+        
         MelonCoroutines.Start(SetupCamera());
+        
         Patches.Apply(HarmonyInstance);
     }
     
@@ -40,8 +42,7 @@ public class ThirdPerson : MelonMod
 
         if (!Input.GetKey(KeyCode.LeftControl)) return;
         if (Input.GetKeyDown(KeyCode.T)) State = !State;
-        if (!State) return;
-        if (!Input.GetKeyDown(KeyCode.Y)) return;
+        if (!State || !Input.GetKeyDown(KeyCode.Y)) return;
         RelocateCam((CameraLocation)(((int)CurrentLocation + 1) % Enum.GetValues(typeof(CameraLocation)).Length), true);
     }
 }

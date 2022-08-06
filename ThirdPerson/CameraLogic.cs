@@ -38,7 +38,7 @@ internal static class CameraLogic
         RelocateCam(CameraLocation.Default);
         _ourCam.gameObject.SetActive(false);
         _ourCam.AddComponent<Camera>();
-        MelonLogger.Msg("Finished setting up third person camera.");
+        ThirdPerson.Logger.Msg("Finished setting up third person camera.");
     }
 
     internal static void RelocateCam(CameraLocation location, bool resetDist = false)
