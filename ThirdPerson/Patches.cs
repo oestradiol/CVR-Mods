@@ -21,6 +21,10 @@ internal static class Patches
             prefix: typeof(Patches).GetMethod(nameof(ToggleQuickMenu), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
         );
         harmony.Patch(
+            typeof(PlayerSetup).GetMethod(nameof(PlayerSetup.CalibrateAvatar), BindingFlags.Public | BindingFlags.Instance),
+            postfix: typeof(Patches).GetMethod(nameof(OnCalibrateAvatar), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
+         );
+        harmony.Patch(
             typeof(CVRWorld).GetMethod("SetDefaultCamValues", BindingFlags.NonPublic | BindingFlags.Instance),
             postfix: typeof(Patches).GetMethod(nameof(OnWorldStart), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
          );
