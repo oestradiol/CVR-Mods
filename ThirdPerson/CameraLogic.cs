@@ -46,7 +46,6 @@ internal static class CameraLogic
         yield return new WaitUntil(() => PlayerSetup.Instance && PlayerSetup.Instance.GetActiveCamera());
         _ourCam = new GameObject { gameObject = { name = "ThirdPersonCameraObj" } };
         _ourCam.AddComponent<Camera>();
-        //_ourCam.AddComponent<WorldTransitionCamera>();
         ParentCameraObject();
         ThirdPerson.Logger.Msg("Finished setting up third person camera.");
     }
