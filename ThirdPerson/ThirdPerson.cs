@@ -1,9 +1,9 @@
-﻿using System;
+﻿using MelonLoader;
+using System;
 using System.Reflection;
-using MelonLoader;
 using UnityEngine;
-using BuildInfo = ThirdPerson.BuildInfo;
 using static ThirdPerson.CameraLogic;
+using BuildInfo = ThirdPerson.BuildInfo;
 
 [assembly: AssemblyCopyright("Created by " + BuildInfo.Author)]
 [assembly: MelonInfo(typeof(ThirdPerson.ThirdPerson), BuildInfo.Name, BuildInfo.Version, BuildInfo.Author)]
@@ -22,19 +22,19 @@ public static class BuildInfo
 public class ThirdPerson : MelonMod
 {
     internal static MelonLogger.Instance Logger;
-    
-    public override void OnApplicationStart() 
+
+    public override void OnInitializeMelon()
     {
         Logger = LoggerInstance;
-        
+
         MelonCoroutines.Start(SetupCamera());
-        
+
         Patches.Apply(HarmonyInstance);
     }
-    
+
     public override void OnUpdate()
     {
-        if(State)
+        if (State)
         {
             if (Input.GetAxis("Mouse ScrollWheel") > 0f) IncrementDist();
             else if (Input.GetAxis("Mouse ScrollWheel") < 0f) DecrementDist();

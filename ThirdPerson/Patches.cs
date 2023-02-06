@@ -1,7 +1,9 @@
-﻿using System.Linq;
-using System.Reflection;
-using MelonLoader;
+﻿using ABI.CCK.Components;
 using ABI_RC.Core.InteractionSystem;
+using ABI_RC.Core.Player;
+using MelonLoader;
+using System.Linq;
+using System.Reflection;
 using static ThirdPerson.CameraLogic;
 
 namespace ThirdPerson;
@@ -12,14 +14,24 @@ internal static class Patches
     {
         harmony.Patch(
             typeof(ViewManager).GetMethods().FirstOrDefault(x => x.Name == nameof(ViewManager.UiStateToggle) && x.GetParameters().Length > 0),
-            typeof(Patches).GetMethod(nameof(ToggleMainMenu), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
+            prefix: typeof(Patches).GetMethod(nameof(ToggleMainMenu), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
         );
         harmony.Patch(
             typeof(CVR_MenuManager).GetMethod(nameof(CVR_MenuManager.ToggleQuickMenu)),
-            typeof(Patches).GetMethod(nameof(ToggleQuickMenu), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
+            prefix: typeof(Patches).GetMethod(nameof(ToggleQuickMenu), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
         );
+        harmony.Patch(
+            typeof(CVRWorld).GetMethod("SetDefaultCamValues", BindingFlags.NonPublic | BindingFlags.Instance),
+            null,
+            postfix: typeof(Patches).GetMethod(nameof(OnWorldStart), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
+         );
+        harmony.Patch(
+            typeof(CVRWorld).GetMethod("CopyRefCamValues", BindingFlags.NonPublic | BindingFlags.Instance),
+            null,
+            postfix: typeof(Patches).GetMethod(nameof(OnWorldStart), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
+         );
     }
-    
+
     private const BindingFlags Flags = BindingFlags.NonPublic | BindingFlags.Instance;
     private static readonly FieldInfo MainMenuOpen =
         typeof(ViewManager).GetField("_gameMenuOpen", Flags);
@@ -39,4 +51,13 @@ internal static class Patches
             _ => State
         };
     }
+    //DesktopVRSwitch Support
+    private static void OnCalibrateAvatar()
+    {
+        if (_defaultCam != null && _defaultCam != PlayerSetup.Instance.GetActiveCamera())
+        {
+            ParentCamObj();
+        }
+    }
+    private static void OnWorldStart() => CopyFromPlayerCam();
 }
