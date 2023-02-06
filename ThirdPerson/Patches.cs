@@ -22,12 +22,10 @@ internal static class Patches
         );
         harmony.Patch(
             typeof(CVRWorld).GetMethod("SetDefaultCamValues", BindingFlags.NonPublic | BindingFlags.Instance),
-            null,
             postfix: typeof(Patches).GetMethod(nameof(OnWorldStart), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
          );
         harmony.Patch(
             typeof(CVRWorld).GetMethod("CopyRefCamValues", BindingFlags.NonPublic | BindingFlags.Instance),
-            null,
             postfix: typeof(Patches).GetMethod(nameof(OnWorldStart), BindingFlags.NonPublic | BindingFlags.Static).ToNewHarmonyMethod()
          );
     }
@@ -52,12 +50,7 @@ internal static class Patches
         };
     }
     //DesktopVRSwitch Support
-    private static void OnCalibrateAvatar()
-    {
-        if (_defaultCam != null && _defaultCam != PlayerSetup.Instance.GetActiveCamera())
-        {
-            ParentCamObj();
-        }
-    }
+    private static void OnCalibrateAvatar() => CheckVRSwitch();
+    //Copy camera settings & postprocessing components
     private static void OnWorldStart() => CopyFromPlayerCam();
 }

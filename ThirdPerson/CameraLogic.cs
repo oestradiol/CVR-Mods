@@ -1,5 +1,6 @@
 ﻿using ABI_RC.Core.Base;
 using ABI_RC.Core.Player;
+using ABI_RC.Systems.UI;
 using Aura2API;
 using BeautifyEffect;
 using System.Collections;
@@ -13,7 +14,7 @@ namespace ThirdPerson;
 internal static class CameraLogic
 {
     private static float _dist;
-    internal static GameObject _ourCam, _defaultCam;
+    private static GameObject _ourCam, _defaultCam;
     internal static CameraLocation CurrentLocation = CameraLocation.Default;
     internal enum CameraLocation
     {
@@ -36,6 +37,7 @@ internal static class CameraLogic
         }
     }
 
+    private static bool _setupPostProcessing;
     private static readonly FieldInfo ppResources = typeof(PostProcessLayer).GetField("m_Resources", BindingFlags.NonPublic | BindingFlags.Instance);
     private static readonly FieldInfo ppOldResources = typeof(PostProcessLayer).GetField("m_OldResources", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -44,17 +46,26 @@ internal static class CameraLogic
         yield return new WaitUntil(() => PlayerSetup.Instance && PlayerSetup.Instance.GetActiveCamera());
         _ourCam = new GameObject { gameObject = { name = "ThirdPersonCameraObj" } };
         _ourCam.AddComponent<Camera>();
-        ParentCamObj();
+        //_ourCam.AddComponent<WorldTransitionCamera>();
+        ParentCameraObject();
         ThirdPerson.Logger.Msg("Finished setting up third person camera.");
     }
 
-    internal static void ParentCamObj()
+    internal static void ParentCameraObject()
     {
         _defaultCam = PlayerSetup.Instance.GetActiveCamera();
         _ourCam.transform.SetParent(_defaultCam.transform);
         RelocateCam(CameraLocation.Default);
         _ourCam.gameObject.SetActive(false);
         ThirdPerson.Logger.Msg("Parenting ThirdPerson camera object to active camera.");
+    }
+
+    internal static void CheckVRSwitch()
+    {
+        if (_defaultCam != null && _defaultCam != PlayerSetup.Instance.GetActiveCamera())
+        {
+            ParentCameraObject();
+        }
     }
 
     internal static void CopyFromPlayerCam()
@@ -78,11 +89,14 @@ internal static class CameraLogic
             ppLayerThirdPerson.enabled = ppLayerPlayerCam.enabled;
             ppLayerThirdPerson.volumeLayer = ppLayerPlayerCam.volumeLayer;
             //need to copy these via reflection, otherwise post processing will error
-            //we only need to copy these once on first setup, but eh it works
-            PostProcessResources resources = (PostProcessResources)ppResources.GetValue(ppLayerPlayerCam);
-            PostProcessResources oldResources = (PostProcessResources)ppOldResources.GetValue(ppLayerPlayerCam);
-            ppResources.SetValue(ppLayerThirdPerson, resources);
-            ppResources.SetValue(ppLayerThirdPerson, oldResources);
+            if (!_setupPostProcessing)
+            {
+                _setupPostProcessing = true;
+                PostProcessResources resources = (PostProcessResources)ppResources.GetValue(ppLayerPlayerCam);
+                PostProcessResources oldResources = (PostProcessResources)ppOldResources.GetValue(ppLayerPlayerCam);
+                ppResources.SetValue(ppLayerThirdPerson, resources);
+                ppResources.SetValue(ppLayerThirdPerson, oldResources);
+            }
         }
 
         //what even is this aura camera stuff
